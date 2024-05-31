@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Comentário</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Editar Comentário</h2>
+        <form action="/editComment/{{ comment[0] }}" method="POST">
+            <div class="form-group">
+                <label for="textComment">Novo Texto do Comentário:</label>
+                <textarea class="form-control" name="textComment" rows="3" required>{{ comment[1] }}</textarea>
+            </div>
+            <input type="hidden" name="userName" value="{{ comment[2] }}">
+            <input type="hidden" name="userId" value="{{ user[0] }}"> <!-- Campo oculto para userId -->
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{{ url_for('feed_user', id=user[0]) }}" class="btn btn-secondary">Cancelar</a> <!-- Redirecionamento para o feed do usuário -->
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

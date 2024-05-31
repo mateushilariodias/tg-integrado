@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed da ONG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <style>
+        .post-profile-img {
+            max-width: 50px; /* Defina o tamanho máximo da imagem de perfil */
+        }
+    </style>
+</head>
+
+<body>
+    <header class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <img src="{{ ngo[2] }}" alt="Foto de perfil da ONG" class="profile-img img-fluid rounded-circle">
+            </div>
+            <div class="col-md-6">
+                <h1 class="mb-0">{{ ngo[1] }}</h1>
+            </div>
+            <div class="col-md-3 text-right">
+                <a href="{{ url_for('profileNgo', id=ngo[0]) }}" class="btn btn-primary">Editar Perfil</a>
+            </div>
+        </div>
+    </header>
+    <main class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="mb-0">Criar Novo Post</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="newPostForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="description">Descrição</label>
+                                <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="image">Imagem</label>
+                                <input type="file" id="image" name="image" class="form-control-file" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Publicar</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        {% for post in posts %}
+                        <div class="post mb-4">
+                            <div class="media">
+                                <img src="{{ post[1] }}" alt="Foto de perfil do autor" class="post-profile-img img-fluid rounded-circle mr-3">
+                                <div class="media-body">
+                                    <h5 class="mt-0">{{ post[2] }}</h5>
+                                    <p>{{ post[5] | time_ago }}</p>
+                                </div>
+                            </div>
+                            <p>{{ post[3] }}</p>
+                            {% if post[4] %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ post[4]) }}" alt="Imagem da postagem" class="post-image img-fluid">
+                            {% endif %}
+                            <div class="post-actions">
+                                <a href="/editPost/{{ post[0] }}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</a>
+                                <form action="/deletePost/{{ post[0] }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este post?');">
+                                    <input type="hidden" name="ngo_id" value="{{ ngo[0] }}">
+                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Excluir</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <!-- Coloque aqui o conteúdo adicional, se necessário -->
+            </div>
+        </div>
+    </main>
+    <script>
+        document.getElementById('newPostForm').onsubmit = async function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            let imageFile = formData.get('image');
+            let description = formData.get('description');
+
+            if (imageFile && imageFile.name) {
+                let imageData = new FormData();
+                imageData.append('file', imageFile);
+
+                let imageUploadResponse = await fetch('/uploadImage', {
+                    method: 'POST',
+                    body: imageData
+                });
+
+                if (imageUploadResponse.ok) {
+                    let imageUploadResult = await imageUploadResponse.json();
+                    let imageUrl = imageUploadResult.filename;
+
+                    let data = {
+                        id: Math.floor(Math.random() * 1000000),
+                        profilePicture: "{{ ngo[2] }}",
+                        author: "{{ ngo[1] }}",
+                        description: description,
+                        image: imageUrl
+                    };
+
+                    let response = await fetch('/createPost', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        alert('Post criado com sucesso!');
+                        location.reload();
+                    } else {
+                        let errorResult = await response.json();
+                        alert('Erro ao criar post: ' + errorResult.msg);
+                    }
+                } else {
+                    let errorResult = await imageUploadResponse.json();
+                    alert('Erro ao fazer upload da imagem: ' + errorResult.msg);
+                }
+            } else {
+                alert('Por favor, selecione uma imagem.');
+            }
+        };
+    </script>
+</body>
+
+</html>

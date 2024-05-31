@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil da ONG</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Perfil da ONG</h1>
+        <form action="/updateProfileNgo" method="post">
+            <input type="hidden" name="id" value="{{ ngo[0] }}">
+            <div class="form-group">
+                <label for="pageName">Nome da Página</label>
+                <input type="text" class="form-control" id="pageName" name="pageName" value="{{ ngo[8] }}">
+            </div>
+            <div class="form-group">
+                <label for="cnpj">CNPJ</label>
+                <input type="text" class="form-control" id="cnpj" name="cnpj" value="{{ ngo[1] }}">
+            </div>
+            <div class="form-group">
+                <label for="stateRegistration">Registro Estadual</label>
+                <input type="text" class="form-control" id="stateRegistration" name="stateRegistration" value="{{ ngo[2] }}">
+            </div>
+            <div class="form-group">
+                <label for="corporateReason">Razão Social</label>
+                <input type="text" class="form-control" id="corporateReason" name="corporateReason" value="{{ ngo[3] }}">
+            </div>
+            <div class="form-group">
+                <label for="emailNgo">Email</label>
+                <input type="email" class="form-control" id="emailNgo" name="emailNgo" value="{{ ngo[4] }}">
+            </div>
+            <div class="form-group">
+                <label for="phoneNumberNgo">Telefone</label>
+                <input type="text" class="form-control" id="phoneNumberNgo" name="phoneNumberNgo" value="{{ ngo[5] }}">
+            </div>
+            <div class="form-group">
+                <label for="physicalAddress">Endereço</label>
+                <input type="text" class="form-control" id="physicalAddress" name="physicalAddress" value="{{ ngo[6] }}">
+            </div>
+            <div class="form-group">
+                <label for="objectiveOfTheNgo">Objetivo da ONG</label>
+                <textarea class="form-control" id="objectiveOfTheNgo" name="objectiveOfTheNgo">{{ ngo[7] }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="imageNgo">URL da Imagem da ONG</label>
+                <input type="text" class="form-control" id="imageNgo" name="imageNgo" value="{{ ngo[9] }}">
+            </div>
+            <div class="form-group">
+                <label for="bgImageNgo">URL da Imagem de Fundo da ONG</label>
+                <input type="text" class="form-control" id="bgImageNgo" name="bgImageNgo" value="{{ ngo[10] }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+        <form action="/excluir-ngo/{{ ngo[0] }}" method="post" style="margin-top: 20px;">
+            <input type="submit" value="Excluir ONG" class="btn btn-danger">
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conta da ONG</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .like-btn, .edit-comment-btn, .delete-comment-btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Conta da ONG</h1>
+        <h2>{{ ngo[1] }}</h2>
+        <img src="{{ ngo[2] }}" alt="Logo da ONG" class="img-fluid">
+
+        <h2>Postagens</h2>
+        <!-- Loop para exibir postagens -->
+        {% for post in posts %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ post[3] }}</h5>
+                <p class="card-text"><small class="text-muted">{{ post[5] }}</small></p>
+                <!-- Botões para curtir/descurtir postagem -->
+                <button class="btn btn-primary like-btn" data-post-id="{{ post[0] }}">Curtir</button>
+                <span class="like-count">{{ post[6] }}</span>
+
+                <!-- Formulário para adicionar comentário -->
+                <form class="comment-form mt-3" action="/accountNgoCreateComment" method="post">
+                    <input type="hidden" name="postid" value="{{ post[0] }}">
+                    <input type="hidden" name="user_id" value="{{ user_id }}">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="textComment" placeholder="Adicione um comentário">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Comentar</button>
+                </form>
+
+                <!-- Loop para exibir comentários -->
+                {% for comment in comments[post[0]] %}
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">{{ comment[2] }}</h6>
+                        <p class="card-text">{{ comment[1] }}</p>
+                        <!-- Verifica se o comentário pertence ao usuário atual -->
+                        {% if comment[2] == user_id %}
+                        <button class="btn btn-secondary edit-comment-btn" data-comment-id="{{ comment[0] }}">Editar</button>
+                        <button class="btn btn-danger delete-comment-btn" data-comment-id="{{ comment[0] }}">Excluir</button>
+
+                        <!-- Formulário para editar comentário -->
+                        <form class="edit-comment-form mt-2" action="/accountNgoEditComment" method="post" style="display: none;">
+                            <input type="hidden" name="comment_id" value="{{ comment[0] }}">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="textComment" value="{{ comment[1] }}">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Toggle edit comment form
+            $('.edit-comment-btn').on('click', function() {
+                $(this).siblings('.edit-comment-form').toggle();
+            });
+
+            // Confirm before deleting a comment
+            $('.delete-comment-btn').on('click', function() {
+                if (confirm('Tem certeza que deseja excluir este comentário?')) {
+                    var commentId = $(this).data('comment-id');
+                    $('<form action="/accountNgoDeleteComment" method="post">' +
+                        '<input type="hidden" name="comment_id" value="' + commentId + '">' +
+                        '</form>').appendTo('body').submit();
+                }
+            });
+
+            // AJAX like button
+            $('.like-btn').on('click', function() {
+                var button = $(this);
+                var postId = button.data('post-id');
+
+                $.ajax({
+                    url: '/accountNgoEnjoy/' + {{ user_id }};
+                    type: 'POST';
+                    contentType: 'application/json';
+                    data: JSON.stringify({ post_id: postId });
+                    success: function(response) {
+                        if (response.action === 'liked') {
+                            button.text('Descurtir');
+                        } else {
+                            button.text('Curtir');
+                        }
+                        button.next('.like-count').text(response.like_count);
+                    }
+                });
+            });
+
+            // Submit comment form via AJAX
+            $('.comment-form').on('submit', function(event) {
+                event.preventDefault();
+
+                var form = $(this);
+                var postData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: postData,
+                    success: function(response) {
+                        // You can refresh the comments section here or append the new comment dynamically
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

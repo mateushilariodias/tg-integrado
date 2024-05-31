@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Perfil do Usuário</h1>
+        <form action="/salvar-alteracao-usuario" method="post">
+            <input type="hidden" name="id" value="{{ user[0] }}">
+            <div class="form-group">
+                <label for="fullName">Nome Completo</label>
+                <input type="text" class="form-control" id="fullName" name="fullName" value="{{ user[1] }}">
+            </div>
+            <div class="form-group">
+                <label for="userName">Nome de Usuário</label>
+                <input type="text" class="form-control" id="userName" name="userName" value="{{ user[2] }}">
+            </div>
+            <div class="form-group">
+                <label for="emailUser">Email</label>
+                <input type="email" class="form-control" id="emailUser" name="emailUser" value="{{ user[3] }}">
+            </div>
+            <div class="form-group">
+                <label for="phoneNumberUser">Telefone</label>
+                <input type="text" class="form-control" id="phoneNumberUser" name="phoneNumberUser" value="{{ user[4] }}">
+            </div>
+            <div class="form-group">
+                <label for="userImg">URL da Imagem do Usuário</label>
+                <input type="text" class="form-control" id="userImg" name="userImg" value="{{ user[5] }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+        <form action="/excluir-usuario/{{ user[0] }}" method="post" style="margin-top: 20px;">
+            <input type="submit" value="Excluir usuário" class="btn btn-danger">
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

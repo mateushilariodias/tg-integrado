@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed do Usuário</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .profile-header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .profile-header img {
+            border-radius: 50%;
+        }
+
+        .post {
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            cursor: pointer;
+        }
+
+        .like-btn {
+            cursor: pointer;
+            color: grey;
+        }
+
+        .liked {
+            color: red;
+        }
+
+        .comment-user-img {
+            width: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .comment-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .comment-username {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .comment-date {
+            color: grey;
+        }
+        .popover {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="profile-header">
+            <img src="{{ user[5] }}" alt="Profile Picture" width="100" height="100" class="user-info"
+                data-toggle="popover" data-html="true" title="<a href='/profileUser/{{ user[0] }}'>Perfil</a>"
+                data-content="<a href='/profileUser/{{ user[0] }}'>Editar Perfil</a>">
+            <h1>{{ user[2] }}</h1>
+            <p>{{ user[1] }}</p>
+            {% if user_has_ngo and ngo %}
+            <a href="/feedNgo/{{ ngo[0] }}" class="btn btn-primary">Entrar em ONG</a>
+            {% else %}
+            <a href="/registerNgo" class="btn btn-primary">Cadastrar ONG</a>
+            {% endif %}
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <form class="form-inline mb-4" action="/search" method="get">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Pesquisar" aria-label="Search"
+                        name="query">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Pesquisar</button>
+                </form>
+                {% for post in posts %}
+                <div class="card post">
+                    <div class="card-body">
+                        <header class="flex gap-2 pb-4 border-b items-center">
+                            <img src="{{ post[4] }}" alt="Profile Picture" width="50" height="50"
+                                class="rounded-circle">
+                            <div class="flex flex-col">
+                                <span class="font-semibold">{{ post[5] }}</span>
+                                <span class="text-xs">{{ post[3] }}</span>
+                            </div>
+                        </header>
+                        <main>
+                            {% if post[1] %}
+                            <div class="py-4 w-full">
+                                <span>{{ post[1] }}</span>
+                            </div>
+                            {% endif %}
+                            {% if post[2] %}
+                            <img src="/static/uploads/{{ post[2] }}" alt="Post Image" class="img-fluid" width="1080" height="1080">
+                            {% endif %}
+                        </main>
+                        <footer>
+                            <div class="flex justify-between py-4 border-b">
+                                <span class="like-btn {{ 'liked' if post[7] else '' }}" data-post-id="{{ post[0] }}"
+                                    data-user-id="{{ user[0] }}">Curtir</span>
+                                <span class="like-count">{{ post[6] }} curtidas</span>
+                            </div>
+                            <div class="comments-section">
+                                <h5>Comentários</h5>
+                                <div class="comments-list">
+                                    {% for comment in comments[post[0]] %}
+                                    <div class="comment-item">
+                                        <div class="comment-header">
+                                            <img src="{{ comment[3] }}" alt="User Image" class="comment-user-img">
+                                            <div>
+                                                <span class="comment-username">{{ comment[2] }}</span>
+                                                <span class="comment-date">{{ comment[4] }}</span>
+                                            </div>
+                                        </div>
+                                        <p>{{ comment[1] }}</p>
+                                        {% if comment[2] == user[2] %}
+                                        <div class="d-flex">
+                                            <form method="GET"
+                                                action="{{ url_for('edit_comment', comment_id=comment[0]) }}"
+                                                class="mr-2">
+                                                <button type="submit" class="btn btn-secondary btn-sm">Editar</button>
+                                            </form>
+                                            <form method="POST"
+                                                action="{{ url_for('delete_comment', comment_id=comment[0]) }}"
+                                                class="delete-comment-form">
+                                                <input type="hidden" name="userName" value="{{ user[2] }}">
+                                                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <form class="add-comment-form" method="POST" action="{{ url_for('create_comment') }}">
+                                    <div class="form-group">
+                                        <label for="comment">Adicionar comentário:</label>
+                                        <textarea class="form-control" name="textComment" rows="2" required></textarea>
+                                    </div>
+                                    <input type="hidden" name="userName" value="{{ user[2] }}">
+                                    <input type="hidden" name="userImg" value="{{ user[5] }}">
+                                    <input type="hidden" name="postid" value="{{ post[0] }}">
+                                    <input type="hidden" name="userId" value="{{ user[0] }}">
+                                    <button type="submit" class="btn btn-primary">Comentar</button>
+                                </form>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Substitua pela versão completa do jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <!-- Inclua este script na sua página de feed, onde os posts estão sendo exibidos -->
+    <script>
+        $(document).ready(function(){
+            // Inicializa o popover
+            $('[data-toggle="popover"]').popover({
+                trigger: 'manual', // Desativar comportamento automático
+                placement: 'bottom',
+                html: true
+            }).on('mouseenter', function () {
+                var _this = this;
+                $(this).popover('show');
+                $('.popover').on('mouseleave', function () {
+                    $(_this).popover('hide');
+                });
+            }).on('mouseleave', function () {
+                var _this = this;
+                setTimeout(function () {
+                    if (!$('.popover:hover').length) {
+                        $(_this).popover('hide');
+                    }
+                }, 300);
+            });
+        });
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const likeButtons = document.querySelectorAll('.like-btn');
+
+            likeButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const postId = this.dataset.postId;
+                    const userId = this.dataset.userId;
+
+                    fetch('/toggleLike', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ post_id: postId, user_id: userId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.liked !== undefined) {
+                                if (data.liked) {
+                                    this.classList.add('liked');
+                                } else {
+                                    this.classList.remove('liked');
+                                }
+                                this.nextElementSibling.textContent = `${data.like_count} curtidas`;
+                            } else if (data.error) {
+                                console.error('Erro:', data.error);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+
+            // Formulário de adicionar comentário
+            document.querySelectorAll('.add-comment-form').forEach(form => {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.msg) {
+                                alert(data.msg);
+                                location.reload();
+                            } else {
+                                console.error('Erro:', data);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+
+            // Editar comentário
+            document.querySelectorAll('.edit-comment-form').forEach(form => {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.msg) {
+                                alert(data.msg);
+                                window.location.href = `/feedUser/${formData.get('userId')}`;
+                            } else {
+                                console.error('Erro:', data);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+
+            // Excluir comentário
+            document.querySelectorAll('.delete-comment-form').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const url = this.action;
+
+                    fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.msg) {
+                                alert(data.msg);
+                                location.reload();  // Reload the page after deleting the comment
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
