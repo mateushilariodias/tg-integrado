@@ -4,7 +4,7 @@ import webview
 # webview.start()
 
 import uuid
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, current_app
 import mysql.connector
 import random
 import string
@@ -403,6 +403,9 @@ def create_post():
         cursor.close()
         db.close()
 
+import os
+from flask import current_app
+
 @app.route('/uploadImage', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
@@ -412,7 +415,7 @@ def upload_image():
         return jsonify({"msg": "Nenhum arquivo selecionado"}), 400
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
         try:
             file.save(file_path)
             print(f"Arquivo salvo em: {file_path}")  # Log de debug
